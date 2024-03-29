@@ -1,0 +1,74 @@
+package test_xmapp2.client;
+
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
+public class Client {
+	public static void main(String[] args) {
+		try {
+			Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+			RMIServerInterface stub = (RMIServerInterface) registry.lookup("RMIserver");
+			System.out.println("connected");
+		} catch (Exception e) {
+			System.err.println("client exception: " + e.toString());
+			e.printStackTrace();
+			// TODO: handle exception
+		}
+		
+	}
+}
+-------------------------------------------------------------------------
+package test_xmapp2.client;
+
+import java.rmi.Remote;
+
+public interface RMIServerInterface extends Remote {
+
+}
+--------------------------------------------------------------------------
+package test_xmapp2.database;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class Connect {
+	public static  Connection getConnection() throws SQLException {
+		String url = "jdbc:mysql://localhost:3306/bai3";
+		String username = "root";
+		String password= "";
+		return DriverManager.getConnection(url, username, password);
+	}
+}
+
+----------------------------------------------------------------------------
+package test_xmapp2.sever;
+
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
+
+
+public class RMIserver {
+    public static void main(String[] args) {
+        try {
+        	RMIserverImpl obj = new RMIserverImpl();// Tạo một đối tượng của RMIServerImpl
+            Registry registry = LocateRegistry.createRegistry(1099);// Đăng ký đối tượng với RMI Registry
+            registry.rebind("RMIserver", obj);
+            System.out.println("Server đã sẵn sàng...");
+        } catch (Exception e) {
+            System.err.println("Server exception: " + e.toString());
+            e.printStackTrace(); }}}
+--------------------------------------------------------------------------------
+package test_xmapp2.sever;
+
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+
+import test_xmapp2.client.RMIServerInterface;
+
+public class RMIserverImpl extends UnicastRemoteObject implements RMIServerInterface {
+	public RMIserverImpl() throws RemoteException {
+		
+	}
+}
