@@ -1,0 +1,245 @@
+package test_xmapp2.client;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.util.List;
+import java.util.Scanner;
+public class Client {
+    public static void main(String[] args) {
+        try {// Kết nối tới RMI Registry
+            Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+// Lấy đối tượng remote từ RMI Registry
+            RMIServerInterface stub = (RMIServerInterface) registry.lookup("RMIserver");
+            Scanner scanner = new Scanner(System.in);
+            int choice;
+            do {                // Hiển thị menu
+                System.out.println("----------- MENU -----------");
+                System.out.println("1. Thêm sinh viên");
+                System.out.println("2. Cập nhật thông tin sinh viên");
+                System.out.println("3. Xóa sinh viên");
+                System.out.println("4. Tìm kiếm sinh viên theo mã số sinh viên");
+                System.out.println("5. Thoát");
+                System.out.print("Chọn chức năng (1-5): ");
+                choice = scanner.nextInt();
+                scanner.nextLine(); // Đọc kí tự new line sau khi đọc số
+                // Xử lý từng chức năng theo lựa chọn của người dùng
+                switch (choice) {
+                    case 1:
+                        addStudent(stub, scanner);
+                        break;
+                    case 2:
+                        updateStudent(stub, scanner);
+                        break;
+                    case 3:
+                        deleteStudent(stub, scanner);
+                        break;
+                    case 4:
+                        searchStudent(stub, scanner);
+                        break;
+                    case 5:
+                        System.out.println("Thoát chương trình.");
+                        break;
+                    default:
+                        System.out.println("Vui lòng chọn một chức năng hợp lệ (1-5).");}
+            } while (choice != 5);
+        } catch (Exception e) {
+            System.err.println("Lỗi khi thực thi client: " + e.toString());
+            e.printStackTrace();}}
+    private static void addStudent(RMIServerInterface stub, Scanner scanner) throws Exception {
+        System.out.print("Nhập MSSV: ");
+        int mssv = scanner.nextInt();
+        scanner.nextLine(); // Đọc kí tự new line sau khi đọc số
+        System.out.print("Nhập tên sinh viên: ");
+        String tensv = scanner.nextLine();
+        System.out.print("Nhập ngày sinh (yyyy-MM-dd): ");
+        String ngaysinh = scanner.nextLine();
+        System.out.print("Nhập địa chỉ: ");
+        String address = scanner.nextLine();
+        System.out.print("Nhập lớp: ");
+        String lop = scanner.nextLine();
+        System.out.print("Nhập khoa: ");
+        String khoa = scanner.nextLine();
+        System.out.print("Nhập điểm GK: ");
+        int diemgk = scanner.nextInt();
+        System.out.print("Nhập điểm CK: ");
+        int diemck = scanner.nextInt();
+        // Gọi phương thức insertData để thêm sinh viên vào cơ sở dữ liệu
+        boolean result = stub.insertData(mssv, tensv, ngaysinh, address, lop, khoa, diemgk, diemck);
+        if (result) {
+            System.out.println("Sinh viên đã được thêm thành công.");
+        } else {
+            System.out.println("Đã xảy ra lỗi khi thêm sinh viên.");}}
+    private static void updateStudent(RMIServerInterface stub, Scanner scanner) {
+        try {// Nhập MSSV của sinh viên cần cập nhật
+            System.out.print("Nhập MSSV của sinh viên cần cập nhật: ");
+            int mssv = scanner.nextInt();
+            scanner.nextLine(); // Đọc kí tự new line sau khi đọc số
+            // Nhập thông tin mới từ người dùng
+            System.out.print("Nhập tên sinh viên mới: ");
+            String tensv = scanner.nextLine();
+            System.out.print("Nhập ngày sinh mới (yyyy-MM-dd): ");
+            String ngaysinh = scanner.nextLine();
+            System.out.print("Nhập địa chỉ mới: ");
+            String address = scanner.nextLine();
+            System.out.print("Nhập lớp mới: ");
+            String lop = scanner.nextLine();
+            System.out.print("Nhập khoa mới: ");
+            String khoa = scanner.nextLine();
+            System.out.print("Nhập điểm GK mới: ");
+            int diemgk = scanner.nextInt();
+            System.out.print("Nhập điểm CK mới: ");
+            int diemck = scanner.nextInt();
+            // Gọi phương thức updateData để cập nhật thông tin sinh viên
+            boolean result = stub.updateData(mssv, tensv, ngaysinh, address, lop, khoa, diemgk, diemck);
+            if (result) {
+                System.out.println("Thông tin sinh viên đã được cập nhật thành công.");
+            } else {
+                System.out.println("Đã xảy ra lỗi khi cập nhật thông tin sinh viên.");
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi khi cập nhật sinh viên: " + e.getMessage());
+            e.printStackTrace();}}
+    private static void deleteStudent(RMIServerInterface stub, Scanner scanner) {
+        try {// Nhập MSSV của sinh viên cần xóa
+            System.out.print("Nhập MSSV của sinh viên cần xóa: ");
+            int mssv = scanner.nextInt();
+            scanner.nextLine(); // Đọc kí tự new line sau khi đọc số
+            // Gọi phương thức deleteData để xóa sinh viên
+            boolean result = stub.deleteData(mssv);
+            if (result) {
+                System.out.println("Sinh viên có MSSV " + mssv + " đã được xóa thành công.");
+            } else {
+                System.out.println("MSSV không tồn tại " + mssv );
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi khi xóa sinh viên: " + e.getMessage());
+            e.printStackTrace();}}
+    private static void searchStudent(RMIServerInterface stub, Scanner scanner) {
+        try {// Nhập MSSV của sinh viên cần tìm kiếm
+            System.out.print("Nhập MSSV của sinh viên cần tìm kiếm: ");
+            int mssv = scanner.nextInt();
+            scanner.nextLine(); // Đọc kí tự new line sau khi đọc số
+            // Gọi phương thức searchById để tìm kiếm sinh viên
+            List<String> result = stub.searchById(mssv);
+            if (result != null && !result.isEmpty()) {
+                System.out.println("Thông tin sinh viên:");
+                for (String item : result) {
+                    System.out.println(item);
+                }
+            } else {
+                System.out.println("Không tìm thấy sinh viên có MSSV là " + mssv);
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi khi tìm kiếm sinh viên: " + e.getMessage());
+            e.printStackTrace();}}}
+package test_xmapp2.client;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.util.List;
+public interface RMIServerInterface extends Remote {
+	boolean insertData(int mssv, String tensv, String ngaysinh, String address, String lop, String khoa, int diemgk,int diemck) throws RemoteException;
+	boolean updateData(int mssv, String tensv, String ngaysinh, String address, String lop, String khoa, int diemgk,int diemck) throws RemoteException;
+	boolean deleteData(int mssv) throws RemoteException;
+	List<String> searchById(int mssv) throws RemoteException;}
+package test_xmapp2.database;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+public class Connect {
+	public static  Connection getConnection() throws SQLException {
+		String url = "jdbc:mysql://localhost:3306/gk";
+		String username = "root";
+		String password= "";
+		return DriverManager.getConnection(url, username, password);}}
+package test_xmapp2.sever;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+public class RMIserver {
+    public static void main(String[] args) {
+        try {
+        	RMIserverImpl obj = new RMIserverImpl();// Tạo một đối tượng của RMIServerImpl
+            Registry registry = LocateRegistry.createRegistry(1099);// Đăng ký đối tượng với RMI Registry
+            registry.rebind("RMIserver", obj);
+            System.out.println("Server đã sẵn sàng...");
+        } catch (Exception e) {
+            System.err.println("Server exception: " + e.toString());
+            e.printStackTrace(); }}}
+package test_xmapp2.sever;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import test_xmapp2.client.RMIServerInterface;
+import test_xmapp2.database.Connect;
+public class RMIserverImpl extends UnicastRemoteObject implements RMIServerInterface {
+    public RMIserverImpl() throws RemoteException {
+        super();}
+    @Override
+    public boolean insertData(int mssv, String tensv, String ngaysinh, String address, String lop, String khoa, int diemgk, int diemck) throws RemoteException {
+        try {
+            Connection conn = Connect.getConnection();
+            PreparedStatement statement = conn.prepareStatement("INSERT INTO SinhVien (mssv, tensv, ngaysinh, address, lop, khoa, diemgk, diemck) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            statement.setInt(1, mssv);
+            statement.setString(2, tensv);
+            statement.setString(3, ngaysinh);
+            statement.setString(4, address);
+            statement.setString(5, lop);
+            statement.setString(6, khoa);
+            statement.setInt(7, diemgk);
+            statement.setInt(8, diemck);
+            int rowsInserted = statement.executeUpdate();
+            conn.close();
+            return rowsInserted > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;}}
+    @Override
+    public boolean updateData(int mssv, String tensv, String ngaysinh, String address, String lop, String khoa, int diemgk, int diemck) throws RemoteException {
+        try {
+            Connection conn = Connect.getConnection();
+            PreparedStatement statement = conn.prepareStatement("UPDATE SinhVien SET tensv=?, ngaysinh=?, address=?, lop=?, khoa=?, diemgk=?, diemck=? WHERE mssv=?");
+            statement.setString(1, tensv);
+            statement.setString(2, ngaysinh);
+            statement.setString(3, address);
+            statement.setString(4, lop);
+            statement.setString(5, khoa);
+            statement.setInt(6, diemgk);
+            statement.setInt(7, diemck);
+            statement.setInt(8, mssv);
+            int rowsUpdated = statement.executeUpdate();
+            conn.close();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;}}
+    @Override
+    public boolean deleteData(int mssv) throws RemoteException {
+        try {
+            Connection conn = Connect.getConnection();
+            PreparedStatement statement = conn.prepareStatement("DELETE FROM SinhVien WHERE mssv=?");
+            statement.setInt(1, mssv);
+            int rowsDeleted = statement.executeUpdate();
+            conn.close();
+            return rowsDeleted > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;}}
+    @Override
+    public List<String> searchById(int mssv) throws RemoteException {
+        List<String> data = new ArrayList<>();
+        try {
+            Connection conn = Connect.getConnection();
+            PreparedStatement statement = conn.prepareStatement("SELECT * FROM SinhVien WHERE mssv=?");
+            statement.setInt(1, mssv);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                data.add(rs.getString("tensv") + " - " + rs.getString("ngaysinh"));
+            }
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return data;}}
